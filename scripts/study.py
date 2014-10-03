@@ -20,7 +20,9 @@ print 'Data cleaning'
 train_data['month'] = train_data['datetime'].str[5:7]
 train_data['hour'] = train_data['datetime'].str[11:13]
 
-train_target = train_data['count'].values
+train_count = train_data['count'].values
+train_casual = train_data['casual'].values
+train_registered = train_data['registered'].values
 
 train_data = train_data.drop(['datetime','casual','registered','count'], axis=1)
 
@@ -28,9 +30,11 @@ train = train_data.values
 
 test_data['month'] = test_data['datetime'].str[5:7]
 test_data['hour'] = test_data['datetime'].str[11:13]
-dates = test_data['datetime'].values
 
-true_pred = test_data['count'].values
+test_count = test_data['count'].values
+test_casual = test_data['casual'].values
+test_registered = test_data['registered'].values
+
 test_data = test_data.drop(['datetime','casual','registered','count'], axis=1)
 
 test = test_data.values
@@ -54,9 +58,20 @@ test = test_data.values
 
 print 'Training'
 forest = RandomForestRegressor(n_estimators=100)
-forest = forest.fit(train,train_target)
+forest_registered = RandomForestRegressor(n_estimators=100)
+forest_count = RandomForestRegressor(n_estimators=100)
+
+forest_casual = forest.fit(train,train_casual)
+forest_registered = forest_registered.fit(train, train_registered)
+forest_count = forest_count.fit(train, train_count)
 
 print 'Predicting'
-pred = forest.predict(test).astype(int)
+pred_count = forest_count.predict(test).astype(int)
+pred_casual = forest_casual.predict(test).astype(int)
+pred_registered = forest_registered.predict(test).astype(int)
+pred_sum = pred_casual + pred_registered
 
-print mean_squared_error(true_pred,pred)
+print 'count: ' + mean_squared_error(test_count,pred_count).astype(str)
+print 'casual: ' + mean_squared_error(test_casual,pred_casual).astype(str)
+print 'registered ' + mean_squared_error(test_registered,pred_registered).astype(str)
+print 'sum: ' + mean_squared_error(test_count,pred_sum).astype(str)
