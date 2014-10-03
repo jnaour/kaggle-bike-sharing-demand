@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import csv as csv
 from sklearn.ensemble import RandomForestClassifier
+#from sklearn.svm import SVR
 
 train_data = pd.read_csv("../data/train.csv", header=0)
 test_data = pd.read_csv("../data/test.csv", header=0)
@@ -24,19 +25,35 @@ test_data = test_data.drop(['datetime'], axis=1)
 
 test = test_data.values
 
+#print 'Outliers removal'
+#forest = RandomForestRegressor(n_estimators=100)
+#forest = forest.fit(train,train_target)
+#
+#pred = forest.predict(train).astype(int)
+#
+#err_abs = 100*np.abs(train_target-pred)/train_target
+#
+#not_outliers = err_abs < np.percentile(err_abs,95)
+#
+#train_2 = train[not_outliers,:]
+#train_target_2 = train_target[not_outliers]
+#
+#print 'Training'
+#forest = RandomForestRegressor(n_estimators=100)
+#forest = forest.fit(train_2,train_target_2)
+
 print 'Training'
-forest = RandomForestRegressor(n_estimators=100)
+forest = RandomForestRegressor(n_esimators=100)
 forest = forest.fit(train,train_target)
 
 print 'Predicting'
-results = forest.predict(test).astype(int)
-
+pred = forest.predict(test).astype(int)
 
 print 'Writing file'
 pred_file = open("../data/results.csv","wb")
 open_csv = csv.writer(pred_file)
 open_csv.writerow(["datetime","count"])
-open_csv.writerows(zip(dates,results))
+open_csv.writerows(zip(dates, pred))
 pred_file.close()
 
 print 'Done'
