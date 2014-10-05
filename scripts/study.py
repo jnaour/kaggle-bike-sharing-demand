@@ -12,12 +12,15 @@ np.random.seed(seed_value)
 
 data = pd.read_csv("../data/train.csv", header=0)
 rows = random.sample(data.index,30)
+pred_casual = forest_casual.predict(test).astype(int)
+pred_registered = forest_registered.predict(test).astype(int)
 
 train_data = data.ix[rows]
 test_data = data.drop(rows)
 
 print 'Data cleaning'
 train_data['month'] = train_data['datetime'].str[5:7]
+train_data['day'] = train_data['datetime'].str[8:10]
 train_data['hour'] = train_data['datetime'].str[11:13]
 
 train_count = train_data['count'].values
@@ -29,6 +32,7 @@ train_data = train_data.drop(['datetime','casual','registered','count'], axis=1)
 train = train_data.values
 
 test_data['month'] = test_data['datetime'].str[5:7]
+test_data['day'] = test_data['datetime'].str[8:10]
 test_data['hour'] = test_data['datetime'].str[11:13]
 
 test_count = test_data['count'].values
@@ -57,11 +61,11 @@ test = test_data.values
 #forest = forest.fit(train_2,train_target_2)
 
 print 'Training'
-forest = RandomForestRegressor(n_estimators=100)
+forest_casual = RandomForestRegressor(n_estimators=100)
 forest_registered = RandomForestRegressor(n_estimators=100)
 forest_count = RandomForestRegressor(n_estimators=100)
 
-forest_casual = forest.fit(train,train_casual)
+forest_casual = forest_casual.fit(train,train_casual)
 forest_registered = forest_registered.fit(train, train_registered)
 forest_count = forest_count.fit(train, train_count)
 
